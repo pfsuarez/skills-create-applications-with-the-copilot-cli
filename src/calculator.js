@@ -16,57 +16,78 @@
     node src/calculator.js divide 10 2
 */
 
-const [,, op, aStr, bStr] = process.argv;
-
-function printUsage() {
-  console.log('Usage: node src/calculator.js <operation> <num1> <num2>');
-  console.log('Operations: add, subtract, multiply, divide');
-}
-
 function isNumber(n) {
   return typeof n === 'number' && !Number.isNaN(n) && Number.isFinite(n);
 }
 
-if (!op || !aStr || !bStr) {
-  printUsage();
-  process.exit(1);
+function toNumber(n) {
+  const num = Number(n);
+  if (!isNumber(num)) throw new Error('invalid numeric input');
+  return num;
 }
 
-const a = Number(aStr);
-const b = Number(bStr);
-
-if (!isNumber(a) || !isNumber(b)) {
-  console.error('Error: invalid numeric input.');
-  process.exit(1);
+function add(a, b) {
+  return toNumber(a) + toNumber(b);
 }
 
-let result;
-switch (op.toLowerCase()) {
-  case 'add':
-  case '+':
-    result = a + b;
-    break;
-  case 'subtract':
-  case '-':
-    result = a - b;
-    break;
-  case 'multiply':
-  case '*':
-    result = a * b;
-    break;
-  case 'divide':
-  case '/':
-    if (b === 0) {
-      console.error('Error: division by zero');
-      process.exit(1);
-    }
-    result = a / b;
-    break;
-  default:
-    console.error(`Unknown operation: ${op}`);
+function subtract(a, b) {
+  return toNumber(a) - toNumber(b);
+}
+
+function multiply(a, b) {
+  return toNumber(a) * toNumber(b);
+}
+
+function divide(a, b) {
+  const nb = toNumber(b);
+  if (nb === 0) throw new Error('division by zero');
+  return toNumber(a) / nb;
+}
+
+module.exports = { add, subtract, multiply, divide };
+
+// CLI entrypoint
+if (require.main === module) {
+  const [,, op, aStr, bStr] = process.argv;
+
+  function printUsage() {
+    console.log('Usage: node src/calculator.js <operation> <num1> <num2>');
+    console.log('Operations: add, subtract, multiply, divide');
+  }
+
+  if (!op || !aStr || !bStr) {
     printUsage();
     process.exit(1);
-}
+  }
 
-// Print result to stdout
-console.log(result);
+  try {
+    let result;
+    switch (op.toLowerCase()) {
+      case 'add':
+      case '+':
+        result = add(aStr, bStr);
+        break;
+      case 'subtract':
+      case '-':
+        result = subtract(aStr, bStr);
+        break;
+      case 'multiply':
+      case '*':
+        result = multiply(aStr, bStr);
+        break;
+      case 'divide':
+      case '/':
+        result = divide(aStr, bStr);
+        break;
+      default:
+        console.error(`Unknown operation: ${op}`);
+        printUsage();
+        process.exit(1);
+    }
+
+    console.log(result);
+  } catch (err) {
+    console.error('Error:', err.message);
+    process.exit(1);
+  }
+}
