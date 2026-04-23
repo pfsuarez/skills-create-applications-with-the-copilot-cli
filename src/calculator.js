@@ -44,18 +44,34 @@ function divide(a, b) {
   return toNumber(a) / nb;
 }
 
-module.exports = { add, subtract, multiply, divide };
+function modulo(a, b) {
+  const nb = toNumber(b);
+  if (nb === 0) throw new Error('division by zero');
+  return toNumber(a) % nb;
+}
+
+function power(base, exponent) {
+  return Math.pow(toNumber(base), toNumber(exponent));
+}
+
+function squareRoot(n) {
+  const num = toNumber(n);
+  if (num < 0) throw new Error('square root of negative number');
+  return Math.sqrt(num);
+}
+
+module.exports = { add, subtract, multiply, divide, modulo, power, squareRoot };
 
 // CLI entrypoint
 if (require.main === module) {
   const [,, op, aStr, bStr] = process.argv;
 
   function printUsage() {
-    console.log('Usage: node src/calculator.js <operation> <num1> <num2>');
-    console.log('Operations: add, subtract, multiply, divide');
+    console.log('Usage: node src/calculator.js <operation> <num1> [<num2>]');
+    console.log('Operations: add, subtract, multiply, divide, modulo, power, sqrt');
   }
 
-  if (!op || !aStr || !bStr) {
+  if (!op || !aStr) {
     printUsage();
     process.exit(1);
   }
@@ -78,6 +94,21 @@ if (require.main === module) {
       case 'divide':
       case '/':
         result = divide(aStr, bStr);
+        break;
+      case 'modulo':
+      case 'mod':
+      case '%':
+        result = modulo(aStr, bStr);
+        break;
+      case 'power':
+      case 'pow':
+      case '**':
+      case '^':
+        result = power(aStr, bStr);
+        break;
+      case 'sqrt':
+      case 'sqr':
+        result = squareRoot(aStr);
         break;
       default:
         console.error(`Unknown operation: ${op}`);
